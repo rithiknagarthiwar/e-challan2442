@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import "./App.css";
 
@@ -13,6 +12,7 @@ function App() {
   const [selectedVehicle, setSelectedVehicle] = useState(null);
   const [registrationNumber, setRegistrationNumber] = useState("");
   const [message, setMessage] = useState("");
+  const [activeSection, setActiveSection] = useState("challan");
 
   function searchVehicle() {
     let foundVehicle = null;
@@ -36,6 +36,7 @@ function App() {
     if (foundVehicle !== null) {
       setSelectedVehicle(foundVehicle);
       setMessage("");
+      setActiveSection("challan");
     } else {
       setSelectedVehicle(null);
       setMessage("Vehicle not found in sample data.");
@@ -43,35 +44,118 @@ function App() {
   }
 
   return (
-    <div>
-      <h1>e-Challan </h1>
+    <div className="app-container">
+      <img
+        src="/dont-drink-drive.png"
+        alt="Don't drink and drive safety awareness"
+        className="safety-banner"
+      />
+
+      <h1>e-Challan</h1>
 
       <h2>Enter Vehicle Registration Number</h2>
 
-      <input
-        type="text"
-        placeholder="Example: TS09AB1234"
-        value={registrationNumber}
-        onChange={function (event) {
-          setRegistrationNumber(event.target.value);
+      <form
+        className="search-form"
+        onSubmit={function (event) {
+          event.preventDefault();
+          searchVehicle();
         }}
-      />
+      >
+        <input
+          type="text"
+          placeholder="Example: TS09AB1234"
+          value={registrationNumber}
+          onChange={function (event) {
+            setRegistrationNumber(event.target.value);
+          }}
+          aria-label="Vehicle registration number"
+        />
 
-      <button onClick={searchVehicle}>Search Vehicle</button>
+        <button type="submit">Search Vehicle</button>
+      </form>
 
-      <p>{message}</p>
+      {message !== "" && (
+        <p className="message" role="status">
+          {message}
+        </p>
+      )}
 
       {selectedVehicle !== null && (
-        <div>
+        <div className="vehicle-results">
           <BikeCard vehicle={selectedVehicle} />
 
-          <PUCDetails puc={selectedVehicle.puc} />
+          <div className="details-buttons">
+            <button
+              type="button"
+              className={
+                activeSection === "challan" ? "active-button" : ""
+              }
+              aria-pressed={activeSection === "challan"}
+              onClick={function () {
+                setActiveSection("challan");
+              }}
+            >
+              Challan Details
+            </button>
 
-          <InsuranceDetails insurance={selectedVehicle.insurance} />
+            <button
+              type="button"
+              className={
+                activeSection === "license" ? "active-button" : ""
+              }
+              aria-pressed={activeSection === "license"}
+              onClick={function () {
+                setActiveSection("license");
+              }}
+            >
+              Driving License
+            </button>
 
-          <DrivingLicenseDetails vehicle={selectedVehicle} />
+            <button
+              type="button"
+              className={
+                activeSection === "puc" ? "active-button" : ""
+              }
+              aria-pressed={activeSection === "puc"}
+              onClick={function () {
+                setActiveSection("puc");
+              }}
+            >
+              PUC Details
+            </button>
 
-          <ChallanList challans={selectedVehicle.challans} />
+            <button
+              type="button"
+              className={
+                activeSection === "insurance" ? "active-button" : ""
+              }
+              aria-pressed={activeSection === "insurance"}
+              onClick={function () {
+                setActiveSection("insurance");
+              }}
+            >
+              Insurance Details
+            </button>
+          </div>
+
+          <div className="selected-details">
+            {activeSection === "challan" && (
+              <ChallanList challans={selectedVehicle.challans} />
+            )}
+
+            {activeSection === "license" && (
+              <DrivingLicenseDetails vehicle={selectedVehicle} />
+            )}
+
+            {activeSection === "puc" && (
+              <PUCDetails puc={selectedVehicle.puc} />
+            )}
+
+            {activeSection === "insurance" && (
+              <InsuranceDetails insurance={selectedVehicle.insurance} />
+            )}
+          </div>
         </div>
       )}
     </div>
